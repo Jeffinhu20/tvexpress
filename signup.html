@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro – StreamPro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">StreamPro</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Início</a></li>
+                <li><a href="index.html#produtos">Loja</a></li>
+                <li><a href="login.html" id="auth-link">Entrar</a></li>
+            </ul>
+        </nav>
+        <div class="cart-icon"><span>0</span></div>
+    </header>
+    <section class="auth-container">
+        <h2>Cadastre-se</h2>
+        <form id="signup-form" class="auth-form">
+            <label for="name">Nome</label>
+            <input type="text" id="name" required>
+            <label for="email">E‑mail</label>
+            <input type="email" id="email" required>
+            <label for="password">Senha</label>
+            <input type="password" id="password" required>
+            <button type="submit" class="auth-btn">Cadastrar</button>
+            <p class="auth-toggle">Já tem conta? <a href="login.html">Entrar</a></p>
+        </form>
+    </section>
+    <footer>
+        <div class="contact">
+            <h4>Atendimento</h4>
+            <p>Segunda – Sábado 08h às 22h</p>
+            <p>Domingo e feriados 09h às 22h</p>
+        </div>
+        <div class="privacy">
+            <h4>Política de Privacidade</h4>
+            <p><a href="#">Leia nossa política</a></p>
+        </div>
+    </footer>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Atualiza contador do carrinho
+        function updateCartCount() {
+            let count = 0;
+            try { count = (JSON.parse(localStorage.getItem('cart')) || []).length; } catch (e) { count = 0; }
+            const span = document.querySelector('.cart-icon span');
+            if (span) span.textContent = count;
+        }
+        updateCartCount();
+        // Atualiza link de autenticação
+        (function updateAuthLink() {
+            const link = document.getElementById('auth-link');
+            if (!link) return;
+            let currentUser = null;
+            try { currentUser = JSON.parse(localStorage.getItem('currentUser')); } catch (e) { currentUser = null; }
+            link.onclick = null;
+            if (currentUser) {
+                link.textContent = 'Sair';
+                link.href = '#';
+                link.onclick = function(ev) {
+                    ev.preventDefault();
+                    localStorage.removeItem('currentUser');
+                    updateAuthLink();
+                };
+            } else {
+                link.textContent = 'Entrar';
+                link.href = 'login.html';
+            }
+        })();
+        // Processa cadastro
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            let users = [];
+            try { users = JSON.parse(localStorage.getItem('users')) || []; } catch (err) { users = []; }
+            // Verifica se o email já existe
+            if (users.some(u => u.email === email)) {
+                alert('E‑mail já cadastrado. Faça login ou use outro e‑mail.');
+                return;
+            }
+            const newUser = { name: name, email: email, password: password };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            // Define usuário atual logado
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            // Redireciona para a página principal
+            window.location.href = 'index.html';
+        });
+    });
+    </script>
+</body>
+</html>

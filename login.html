@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – StreamPro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">StreamPro</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Início</a></li>
+                <li><a href="index.html#produtos">Loja</a></li>
+                <li><a href="login.html" id="auth-link">Entrar</a></li>
+            </ul>
+        </nav>
+        <div class="cart-icon"><span>0</span></div>
+    </header>
+    <section class="auth-container">
+        <h2>Entrar</h2>
+        <form id="login-form" class="auth-form">
+            <label for="email">E‑mail</label>
+            <input type="email" id="email" required>
+            <label for="password">Senha</label>
+            <input type="password" id="password" required>
+            <button type="submit" class="auth-btn">Entrar</button>
+            <p class="auth-toggle">Não tem conta? <a href="signup.html">Cadastre-se</a></p>
+        </form>
+    </section>
+    <footer>
+        <div class="contact">
+            <h4>Atendimento</h4>
+            <p>Segunda – Sábado 08h às 22h</p>
+            <p>Domingo e feriados 09h às 22h</p>
+        </div>
+        <div class="privacy">
+            <h4>Política de Privacidade</h4>
+            <p><a href="#">Leia nossa política</a></p>
+        </div>
+    </footer>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Atualiza contador do carrinho
+        function updateCartCount() {
+            let count = 0;
+            try { count = (JSON.parse(localStorage.getItem('cart')) || []).length; } catch (e) { count = 0; }
+            const span = document.querySelector('.cart-icon span');
+            if (span) span.textContent = count;
+        }
+        updateCartCount();
+        // Atualiza link de autenticação
+        (function updateAuthLink() {
+            const link = document.getElementById('auth-link');
+            if (!link) return;
+            let currentUser = null;
+            try { currentUser = JSON.parse(localStorage.getItem('currentUser')); } catch (e) { currentUser = null; }
+            link.onclick = null;
+            if (currentUser) {
+                link.textContent = 'Sair';
+                link.href = '#';
+                link.onclick = function(ev) {
+                    ev.preventDefault();
+                    localStorage.removeItem('currentUser');
+                    updateAuthLink();
+                };
+            } else {
+                link.textContent = 'Entrar';
+                link.href = 'login.html';
+            }
+        })();
+        // Processa login
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            let users = [];
+            try { users = JSON.parse(localStorage.getItem('users')) || []; } catch (err) { users = []; }
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                // redireciona para a página principal
+                window.location.href = 'index.html';
+            } else {
+                alert('Credenciais inválidas. Verifique seu e‑mail e senha.');
+            }
+        });
+    });
+    </script>
+</body>
+</html>
