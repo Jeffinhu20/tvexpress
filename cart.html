@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho – StreamPro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">StreamPro</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Início</a></li>
+                <li><a href="index.html#produtos">Loja</a></li>
+                <li><a href="#">Minha Conta</a></li>
+            </ul>
+        </nav>
+        <div class="cart-icon"><span>0</span></div>
+    </header>
+    
+    <section class="cart-container">
+        <h2>Seu Carrinho</h2>
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Preço</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="cart-body">
+                <!-- Itens serão inseridos via JavaScript -->
+            </tbody>
+        </table>
+        <div class="cart-total">Total: R$ <span id="total-price">0,00</span></div>
+        <button class="checkout-btn">Finalizar Compra</button>
+    </section>
+
+    <footer>
+        <div class="contact">
+            <h4>Atendimento</h4>
+            <p>Segunda – Sábado 08h às 22h</p>
+            <p>Domingo e feriados 09h às 22h</p>
+        </div>
+        <div class="privacy">
+            <h4>Política de Privacidade</h4>
+            <p><a href="#">Leia nossa política</a></p>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Carrega o carrinho do localStorage e monta a tabela
+        function loadCart() {
+            let cart = [];
+            try {
+                cart = JSON.parse(localStorage.getItem('cart')) || [];
+            } catch (e) {
+                cart = [];
+            }
+            const tbody = document.getElementById('cart-body');
+            tbody.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>R$ ${item.price.toFixed(2)}</td>
+                    <td><button class="remove-btn" data-index="${index}">Remover</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('total-price').textContent = total.toFixed(2);
+            updateCartCount();
+        }
+
+        // Atualiza o contador do carrinho no cabeçalho
+        function updateCartCount() {
+            let count = 0;
+            try {
+                count = (JSON.parse(localStorage.getItem('cart')) || []).length;
+            } catch (e) {
+                count = 0;
+            }
+            const span = document.querySelector('.cart-icon span');
+            if (span) {
+                span.textContent = count;
+            }
+        }
+
+        // Remove itens ao clicar no botão remover
+        document.getElementById('cart-body').addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-btn')) {
+                const idx = parseInt(e.target.dataset.index);
+                let cart = [];
+                try {
+                    cart = JSON.parse(localStorage.getItem('cart')) || [];
+                } catch (err) {
+                    cart = [];
+                }
+                // Remove o item do array
+                cart.splice(idx, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                loadCart();
+            }
+        });
+
+        // Botão de checkout
+        document.querySelector('.checkout-btn').addEventListener('click', function () {
+            alert('Pagamento não implementado. Por favor integre com um provedor de pagamento.');
+        });
+
+        // Carrega o carrinho ao iniciar a página
+        loadCart();
+    });
+    </script>
+</body>
+</html>
